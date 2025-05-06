@@ -17,14 +17,18 @@ To write a YACC program to recognize the grammar anb where n>=10.
 ```
 %{
 #include "y.tab.h"
+#include <stdio.h>
 %}
 
-%%
-a    { return A; }  // Recognize 'a' as token A
-b    { return B; }  // Recognize 'b' as token B
-.    { return 0; }  // End of input
+/* Rule Section */
 %%
 
+[aA] { return A; }
+[bB] { return B; }
+\n { return NL; }
+. { /* Ignore any other characters */ }
+
+%%
 int yywrap() {
     return 1;
 }
@@ -33,31 +37,36 @@ int yywrap() {
 ```
 %{
 #include <stdio.h>
+#include <stdlib.h>
+
+void yyerror(char *s);
 int yylex(void);
-void yyerror(const char *s);
 %}
 
-%token A B
+%token A B NL
 
-%%
-S   : A A A A A A A A A A B    { printf("Valid string\n"); }
-    | A S B                    { printf("Valid string\n"); }
-    ;
+%% 
 
-%%
+stmt: S NL { printf("Valid string\n"); exit(0); }
+;
+
+S: A S B | /* Allow for empty production */
+  
+;
+
+%% 
+
+void yyerror(char *s) {
+    fprintf(stderr, "Invalid string\n");
+}
 
 int main() {
-    printf("Enter a string:\n");
+    printf("Enter the string:");
     yyparse();
     return 0;
 }
-
-void yyerror(const char *s) {
-    printf("Invalid string\n");
-}
 ```
 # OUTPUT
-![Screenshot 2024-11-05 134330](https://github.com/user-attachments/assets/28871f35-55bb-4b6d-9aa6-f96912b5b207)
-
+![image](https://github.com/user-attachments/assets/fc2de51e-d00d-41a8-a54e-44d7258d4f70)
 # RESULT
 The YACC program to recognize the grammar anb where n>=10 is executed successfully and the output is verified.
